@@ -1,0 +1,29 @@
+<!-- Event snippet for Purchase2 conversion page -->
+<script> gtag('event', 'conversion', {
+    'send_to': 'AW-<%=Spree::Config.google_ad_id %>/<%=Spree::Config.google_ad_conversion_id %>',
+    'value': <%=@order.total %>,
+    'currency': 'USD',
+    'transaction_id': '<%=@order.number %>'
+}); </script>
+
+
+<script> gtag('event', 'purchase', {
+    'send_to': 'AW-<%=Spree::Config.google_ad_id %>',
+    'value': <%=@order.total %>,
+    'items': [
+        <% @order.line_items.each do |item| %>
+        <% gmc_product_id = item.product.property("gmc_product_id") %>
+        {
+            <% unless gmc_product_id.nil? %>
+            'id': '<%=gmc_product_id %>',
+            'ecomm_prodid': '<%=gmc_product_id %>',
+            <% else %>
+            'id': '<%= item.variant_id %>',
+            'ecomm_prodid': '<%= item.variant_id %>',
+            <% end %>
+            'google_business_vertical': 'retail'
+        },
+        <% end %>
+    ],
+    'currency': 'USD'
+}); </script>

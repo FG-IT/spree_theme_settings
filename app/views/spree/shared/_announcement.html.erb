@@ -1,0 +1,9 @@
+<% if SpreeThemeSettings::Config.has_preference? :top_announcement %>
+  <% unless SpreeThemeSettings::Config.top_announcement.blank? %>
+    <div class="announcement-bar">
+      <p class="announcement-bar__message">
+        <%= raw SpreeThemeSettings::Config.top_announcement %>
+      </p>
+    </div>
+  <% end %>
+<% end %>
