@@ -6,6 +6,7 @@ module SpreeThemeSettings
     preference :google_ad_id, :string
     preference :google_ad_conversion_id, :string
     preference :head_extra_codes, :text
+    preference :body_extra_codes, :text
     preference :footer_extra_codes, :text
     preference :product_tabs, :string
     preference :top_announcement, :string
