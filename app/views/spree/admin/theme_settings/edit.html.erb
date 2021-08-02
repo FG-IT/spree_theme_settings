@@ -48,6 +48,12 @@
       </div>
       <div class='row'>
         <div class='field col-md-6'>
+          <%= label_tag('Codes after body open tag') %>
+          <%= preference_field_tag('body_extra_codes', SpreeThemeSettings::Config['body_extra_codes'], type: :text) %>
+        </div>
+      </div>
+      <div class='row'>
+        <div class='field col-md-6'>
           <%= label_tag('Footer extra codes') %>
           <%= preference_field_tag('footer_extra_codes', SpreeThemeSettings::Config['footer_extra_codes'], type: :text) %>
         </div>
