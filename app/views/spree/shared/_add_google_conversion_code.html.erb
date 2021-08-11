@@ -39,7 +39,7 @@
           'value': <%= fa_product_price %>,
           <% end %>
           <% if @product %>
-          <% default_variant = default_variant(@variants, @product) %>
+          <% default_variant = @variants.present? ? default_variant(@variants, @product) : @product %>
           <% gmc_product_id = @product.property("gmc_product_id") %>
           <% product_id = gmc_product_id.present?? gmc_product_id:default_variant.id  %>
           'ecomm_pagetype': 'product',
