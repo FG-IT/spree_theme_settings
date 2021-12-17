@@ -1,6 +1,7 @@
+<% unless SpreeThemeSettings::Config.google_ad_id.blank? %>
 <!-- Event snippet for Purchase2 conversion page -->
 <script> gtag('event', 'conversion', {
-    'send_to': 'AW-<%=Spree::Config.google_ad_id %>/<%=Spree::Config.google_ad_conversion_id %>',
+    'send_to': 'AW-<%=SpreeThemeSettings::Config.google_ad_id %>/<%=SpreeThemeSettings::Config.google_ad_conversion_id %>',
     'value': <%=@order.total %>,
     'currency': 'USD',
     'transaction_id': '<%=@order.number %>'
@@ -8,7 +9,7 @@
 
 
 <script> gtag('event', 'purchase', {
-    'send_to': 'AW-<%=Spree::Config.google_ad_id %>',
+    'send_to': 'AW-<%=SpreeThemeSettings::Config.google_ad_id %>',
     'value': <%=@order.total %>,
     'items': [
         <% @order.line_items.each do |item| %>
@@ -27,3 +28,4 @@
     ],
     'currency': 'USD'
 }); </script>
+<% end %>
