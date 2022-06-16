@@ -32,7 +32,7 @@
     <% fa_event = 'other' %>
   <% end %>
   <script>
-
+    window.addEventListener('turbolinks:load', function() {
       gtag('event', '<%= fa_event %>', {
           'send_to': 'AW-<%= fa_google_ads_audience_tag_id %>',
           <% if fa_product_price >0 %>
@@ -71,6 +71,7 @@
           ],
           <% end %>
       });
+    });
   </script>
 
   <!-- Google Ads Remarketing Tag By FeedArmy Version 2.13 END -->
