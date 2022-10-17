@@ -28,6 +28,8 @@
     <% fa_event = 'add_to_cart' %>
   <% elsif controller_name == 'home' %>
     <% fa_event = 'home' %>
+  <% elsif controller_name == 'orders' and action_name == 'show' %>
+    <% fa_event = 'order_complete' %>
   <% else %>
     <% fa_event = 'other' %>
   <% end %>
@@ -69,6 +71,21 @@
               },
               <% end %>
           ],
+          'order_id': "<%= @order.number %>",
+          'order_value': <%= @order.total %>,
+          'order_currency': "<%= @order.currency %>",
+          'enhanced_conversion_data':  {
+            "email": "<%= @order.email %>",
+            "first_name": "<%= @order&.bill_address&.firstname %>",
+            "last_name": "<%= @order&.bill_address&.lastname %>",
+            "home_address": {
+              "street": "<%= @order.bill_address&.address1 %>",
+              "city": "<%= @order.bill_address&.city %>",
+              "region": "<%= @order.bill_address&.state_text %>",
+              "postal_code": "<%= @order.bill_address&.zipcode %>",
+              "country": "<%= @order.bill_address&.country&.to_s %>"
+            }
+          }
           <% end %>
       });
   </script>
