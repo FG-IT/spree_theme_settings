@@ -1,9 +1,12 @@
 <% unless SpreeThemeSettings::Config.google_ad_id.blank? %>
   <!-- Google Ads Remarketing Tag  START -->
-  <% fa_google_ads_audience_tag_id = SpreeThemeSettings::Config.google_ad_id %>
+  <%
+  google_ads_conversion_id = SpreeThemeSettings::Config.google_ad_id
+  google_ads_conversion_label = SpreeThemeSettings::Config.google_ad_conversion_id
+  %>
   <!-- Global site tag (gtag.js) - Ads. -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-<%= fa_google_ads_audience_tag_id %>"></script>
-  <script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-<%= google_ads_conversion_id %>"></script>
+  <script type="text/javascript">
       window.dataLayer = window.dataLayer || [];
 
       function gtag() {
@@ -11,84 +14,58 @@
       }
 
       gtag('js', new Date());
-      gtag('config', 'AW-<%= fa_google_ads_audience_tag_id %>');
+      gtag('config', 'AW-<%= google_ads_conversion_id %>');
   </script>
   <!-- Global site tag (gtag.js) - Ads. -->
-  <% fa_product_price = 0 %>
-  <% if @product %>
-    <% fa_product_price = @product.price %>
-  <% elsif @order %>
-    <% fa_product_price = @order.amount %>
-  <% end %>
-  <% if @category %>
-    <% fa_event = 'view_item_list' %>
-  <% elsif @product %>
-    <% fa_event = 'view_item' %>
-  <% elsif controller_name == 'orders' and action_name == 'edit' %>
-    <% fa_event = 'add_to_cart' %>
-  <% elsif controller_name == 'home' %>
-    <% fa_event = 'home' %>
-  <% elsif controller_name == 'orders' and action_name == 'show' %>
-    <% fa_event = 'order_complete' %>
-  <% else %>
-    <% fa_event = 'other' %>
-  <% end %>
-  <script>
 
-      gtag('event', '<%= fa_event %>', {
-          'send_to': 'AW-<%= fa_google_ads_audience_tag_id %>',
-          <% if fa_product_price >0 %>
-          'value': <%= fa_product_price %>,
-          <% end %>
-          <% if @product %>
-          <% default_variant = @variants.present? ? default_variant(@variants, @product) : @product %>
-          <% gmc_product_id = @product.property("gmc_product_id") %>
-          <% product_id = gmc_product_id.present?? gmc_product_id:default_variant.id  %>
-          'ecomm_pagetype': 'product',
-          'ecomm_prodid': '<%= product_id %>',
-          'ecomm_totalvalue': '<%= fa_product_price %>',
-          'items': [{
-              'id': '<%=product_id %>',
-              'ecomm_pagetype': 'product',
-              'ecomm_prodid': '<%= product_id %>',
-              'ecomm_totalvalue': '<%= fa_product_price %>',
-              'google_business_vertical': 'retail',
-              'quantity': 10
-          }],
-          <% elsif @order %>
-          'items': [
-              <% @order.line_items.each do |item| %>
-              <% gmc_product_id = item.product.property("gmc_product_id") %>
-              {
-                  <% unless gmc_product_id.nil? %>
-                  'id': '<%=gmc_product_id %>',
-                  'ecomm_prodid': '<%=gmc_product_id %>',
-                  <% else %>
-                  'id': '<%= item.variant_id %>',
-                  'ecomm_prodid': '<%= item.variant_id %>',
-                  <% end %>
-                  'google_business_vertical': 'retail'
-              },
-              <% end %>
-          ],
-          'order_id': "<%= @order.number %>",
-          'order_value': <%= @order.total %>,
-          'order_currency': "<%= @order.currency %>",
-          'enhanced_conversion_data':  {
-            "email": "<%= @order.email %>",
-            "first_name": "<%= @order&.bill_address&.firstname %>",
-            "last_name": "<%= @order&.bill_address&.lastname %>",
-            "home_address": {
-              "street": "<%= @order.bill_address&.address1 %>",
-              "city": "<%= @order.bill_address&.city %>",
-              "region": "<%= @order.bill_address&.state_text %>",
-              "postal_code": "<%= @order.bill_address&.zipcode %>",
-              "country": "<%= @order.bill_address&.country&.to_s %>"
-            }
-          }
-          <% end %>
-      });
+  <% if controller_name == 'orders' && action_name == 'show' && @order.present? %>
+  <%
+  order_id = @order.number
+  order_currency = @order.currency
+  order_value = @order.total&.to_f
+  address = @order&.ship_address
+  %>
+  <script type="text/javascript">
+  gtag('event', 'conversion', {
+    'send_to': 'AW-<%= google_ads_conversion_id %>/<%= google_ads_conversion_label %>',
+    'transaction_id': '<%= order_id %>',
+    'value': <%= order_value %>,
+    'currency': '<%= order_currency %>'
+  });
+
+  gtag('event', 'order_complete', {
+    'order_id': "<%= order_id %>",
+    'order_value': <%= order_value %>,
+    'order_currency': "<%= order_currency %>",
+    'enhanced_conversion_data':  {
+      "email": "<%= @order.email %>",
+      "first_name": "<%= address&.firstname %>",
+      "last_name": "<%= address&.lastname %>",
+      "home_address": {
+        "street": "<%= address&.address1 %>",
+        "city": "<%= address&.city %>",
+        "region": "<%= address&.state_text %>",
+        "postal_code": "<%= address&.zipcode %>",
+        "country": "<%= address&.country&.iso&.to_s %>"
+      }
+    }
+  });
+
+  gtag('set', 'user_data', {
+    'email': "<%= @order.email %>",
+    <% unless address&.phone.blank? %>
+    'phone_number': "<%= address.phone %>",
+    <% end %>
+    'address': {
+      'first_name': "<%= address&.firstname %>",
+      'last_name': "<%= address&.lastname %>",
+      'street': "<%= address&.address1 %>",
+      'city': "<%= address&.city %>",
+      'region': "<%= address&.state_text %>",
+      'postal_code': "<%= address&.zipcode %>",
+      'country':  "<%= address&.country&.iso %>"
+    }
+  });
   </script>
-
-  <!-- Google Ads Remarketing Tag By FeedArmy Version 2.13 END -->
+  <% end %>
 <% end %>
