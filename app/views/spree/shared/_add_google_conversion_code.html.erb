@@ -18,7 +18,7 @@
   </script>
   <!-- Global site tag (gtag.js) - Ads. -->
 
-  <% if controller_name == 'orders' && action_name == 'show' && @order.present? %>
+  <% if controller_name == 'orders' && action_name == 'show' && @order.present? && order_just_completed?(@order) %>
   <%
   order_id = @order.number
   order_currency = @order.currency
