@@ -2,26 +2,30 @@ require 'digest'
 module Spree
   module NavigationHelper
     def spree_navigation_data
-      if SpreeThemeSettings::Config.has_preference? :main_nav and SpreeThemeSettings::Config[:main_nav].present?
-        config = YAML.load(SpreeThemeSettings::Config[:main_nav]).with_indifferent_access
-        config.dig(current_store.code, :navigation) || config.dig(:default, :navigation) || []
-      else
-        SpreeStorefrontConfig.dig(current_store.code, :navigation) || SpreeStorefrontConfig.dig(:default, :navigation) || []
+      ::Rails.cache.fetch('spree_navigation_data', expires_in: 7.days) do |k|
+        begin
+          if ::SpreeThemeSettings::Config.has_preference? :main_nav and ::SpreeThemeSettings::Config[:main_nav].present?
+            config = YAML.load(::SpreeThemeSettings::Config[:main_nav]).with_indifferent_access
+            config.dig(current_store.code, :navigation) || config.dig(:default, :navigation) || []
+          else
+            ::SpreeStorefrontConfig.dig(current_store.code, :navigation) || ::SpreeStorefrontConfig.dig(:default, :navigation) || []
+          end
+        rescue
+          []
+        end
       end
-    rescue
-      []
     end
 
 
     def spree_nav_cache_key(section = 'header')
-      ActiveSupport::Deprecation.warn(<<-DEPRECATION, caller)
+      ::ActiveSupport::Deprecation.warn(<<-DEPRECATION, caller)
         NavigationHelper#spree_nav_cache_key is deprecated and will be removed in Spree 5.0.
         Please migrate to the new navigation cms system.
       DEPRECATION
 
       @spree_nav_cache_key = begin
                                keys = base_cache_key + [current_store, spree_navigation_data_cache_key, ::Spree::Config[:logo], stores&.cache_key_with_version, section]
-                               Digest::MD5.hexdigest(keys.join('-'))
+                               ::Digest::MD5.hexdigest(keys.join('-'))
                              end
     end
 
@@ -32,7 +36,7 @@ module Spree
           stores&.maximum(:updated_at),
           section
       ]
-      Digest::MD5.hexdigest(keys.join('-'))
+      ::Digest::MD5.hexdigest(keys.join('-'))
     end
 
     def main_nav_image(image_path, title = '')
@@ -99,7 +103,7 @@ module Spree
     private
 
     def spree_navigation_data_cache_key
-      @spree_navigation_data_cache_key ||= Digest::MD5.hexdigest(spree_navigation_data.to_s)
+      @spree_navigation_data_cache_key ||= ::Digest::MD5.hexdigest(spree_navigation_data.to_s)
     end
   end
 end
