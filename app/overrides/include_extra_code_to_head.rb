@@ -1,7 +1,7 @@
 Deface::Override.new(
-    virtual_path: 'spree/layouts/spree_application',
+    virtual_path: 'spree/shared/_head',
     name: 'include_extra_code_to_head',
-    insert_bottom: 'head',
+    insert_after: 'title',
     text: '<%= raw SpreeThemeSettings::Config.head_extra_codes %>',
 )
 
